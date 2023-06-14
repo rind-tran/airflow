@@ -1,6 +1,7 @@
 
 from datetime import datetime, timedelta
 from textwrap import dedent
+import pendulum
 
 # The DAG object;
 from airflow import DAG
@@ -39,10 +40,10 @@ with DAG(
         # 'trigger_rule': 'all_success'
     },
     description="dbgenesys03 backup db full",
-    start_date=datetime(2021, 1, 1),
+    start_date=pendulum.datetime(2023, 6, 14, tz="Asia/Saigon"),
     schedule_interval='30 23 * * 0',
     catchup=False,
-    tags=["example"],
+    tags=["dbgenesys03","genesys"],
 ) as dag:
     command_01="/home/oracle/bin/main_backup_database_incremental_level.sh gsvn1 full > /dev/null 2>&1 "
 
@@ -52,6 +53,7 @@ with DAG(
         task_id="backup_db_full",
         command=command_01,
         ssh_hook=sshHook,
+        cmd_timeout=None,
     )
 
    
