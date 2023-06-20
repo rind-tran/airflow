@@ -1,0 +1,3 @@
+# Conditional task reference for scheduling
+
+https://medium.com/@guillaume_payen/use-conditional-tasks-with-apache-airflow-98bab35f1846
