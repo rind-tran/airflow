@@ -25,7 +25,7 @@ def on_failure(context):
     task_id = context['task_instance'].task_id
     context['task_instance'].xcom_push(key=dag_id, value=True)
 
-    logs_url = "https://vnhqmgrdb01.hcnet.vn:8080/log?dag_id={}&task_id={}&execution_date={}".format(
+    logs_url = "https://vnhqmgrdb01.abc.xyz:8080/log?dag_id={}&task_id={}&execution_date={}".format(
          dag_id, task_id, context['ts'])
 
     teams_notification = MSTeamsWebhookOperator(
