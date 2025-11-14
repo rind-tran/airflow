@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 from textwrap import dedent
 import pendulum
@@ -13,8 +12,25 @@ from airflow.providers.ssh.operators.ssh import SSHOperator
 # Operators;
 from airflow.operators.bash import BashOperator
 
+# Webhook
+from ms_teams_notification import send_notification_ms_teams
+
+
+# Functions
+def on_failure(context):
+    dag_id = context['dag_run'].dag_id
+    task_id = context['task_instance'].task_id
+    context['task_instance'].xcom_push(key=dag_id, value=True)
+    logs_url = "https://vnhqmgrdb01.abc.xyz:8080/log?dag_id={}&task_id={}&execution_date={}".format(dag_id, task_id, context['ts'])
+    message="**Airflow notification**: `{}` has failed on task: `{}`".format(dag_id, task_id)
+    send_notification_ms_teams(message=message, logs_url=logs_url)
+
+
+# Define SSHHook
 sshHook = SSHHook(ssh_conn_id="dbgenesys03_ssh")
 
+
+# Define DAG
 with DAG(
     "dbgenesys03_backup_db_full",
     # These args will get passed on to each operator
@@ -26,6 +42,7 @@ with DAG(
         "email_on_retry": False,
         "retries": 1,
         "retry_delay": timedelta(minutes=5),
+        "on_failure_callback": on_failure,
         # 'queue': 'bash_queue',
         # 'pool': 'backfill',
         # 'priority_weight': 10,
@@ -56,7 +73,3 @@ with DAG(
         cmd_timeout=None,
     )
 
-   
-
-
-    # t1 >> t2 >> t3
